@@ -59,7 +59,7 @@ The mention finding service lets you find what parts of text may be a mention of
  for mention in tomatoes_mentions.mentions:
      print mention
 
-The ``mentions`` parameter accepts an optional language parameter `lang` that defaults to `en`.
+The ``mentions`` parameter accepts an optional language parameter ``lang`` that defaults to ``en``.
 
 Entity relatedness
 ------------------
