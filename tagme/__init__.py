@@ -4,7 +4,7 @@ This module provides a wrapper for the TagMe API.
 '''
 import logging
 import requests
-import simplejson
+import json
 
 from iso8601utils import parsers
 
@@ -24,6 +24,7 @@ DEFAULT_LONG_TEXT = 3
 WIKIPEDIA_URI_BASE = "https://{}.wikipedia.org/wiki/{}"
 MAX_RELATEDNESS_PAIRS_PER_REQUEST = 100
 GCUBE_TOKEN = None
+
 
 class Annotation(object):
     '''
@@ -47,6 +48,7 @@ class Annotation(object):
         '''
         return title_to_uri(self.entity_title, lang)
 
+
 class AnnotateResponse(object):
     '''
     A response to a call to the annotation (/tag) service. It contains the list of annotations
@@ -68,6 +70,7 @@ class AnnotateResponse(object):
     def __str__(self):
         return "{}msec, {} annotations".format(self.time, len(self.annotations))
 
+
 class Mention(object):
     '''
     A mention, i.e. a part of text that may mention an entity.
@@ -80,6 +83,7 @@ class Mention(object):
 
     def __str__(self):
         return "{} [{},{}] lp={}".format(self.mention, self.begin, self.end, self.linkprob)
+
 
 class MentionsResponse(object):
     '''
@@ -102,6 +106,7 @@ class MentionsResponse(object):
     def __str__(self):
         return "{}msec, {} mentions".format(self.time, len(self.mentions))
 
+
 class Relatedness(object):
     '''
     A relatedness, i.e. a real value between 0 and 1 indicating how semantically close two entities
@@ -120,6 +125,7 @@ class Relatedness(object):
 
     def __str__(self):
         return "{}, {} rel={}".format(self.title1, self.title2, self.rel)
+
 
 class RelatednessResponse(object):
     '''
@@ -148,13 +154,15 @@ class RelatednessResponse(object):
     def __str__(self):
         return "{} relatedness pairs, {} calls".format(len(self.relatedness), self.calls)
 
+
 def normalize_title(title):
     '''
     Normalize a title to Wikipedia format. E.g. "barack Obama" becomes "Barack_Obama"
     :param title: a title to normalize.
     '''
-    title = title.strip().replace(" ", "_");
+    title = title.strip().replace(" ", "_")
     return title[0].upper() + title[1:]
+
 
 def title_to_uri(entity_title, lang=DEFAULT_LANG):
     '''
@@ -163,6 +171,7 @@ def title_to_uri(entity_title, lang=DEFAULT_LANG):
     :param lang: the Wikipedia language.
     '''
     return WIKIPEDIA_URI_BASE.format(lang, normalize_title(entity_title))
+
 
 def annotate(text, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_TAG_API,
              long_text=DEFAULT_LONG_TEXT):
@@ -180,6 +189,7 @@ def annotate(text, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_TAG_API,
     json_response = _issue_request(api, payload, gcube_token)
     return AnnotateResponse(json_response) if json_response else None
 
+
 def mentions(text, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_SPOT_API):
     '''
     Find possible mentions in a text, do not link them to any entity.
@@ -193,6 +203,7 @@ def mentions(text, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_SPOT_API):
     json_response = _issue_request(api, payload, gcube_token)
     return MentionsResponse(json_response) if json_response else None
 
+
 def relatedness_wid(wid_pairs, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_REL_API):
     '''
     Get the semantic relatedness among pairs of entities. Entities are indicated by their
@@ -204,6 +215,7 @@ def relatedness_wid(wid_pairs, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_
     '''
     return _relatedness("id", wid_pairs, gcube_token, lang, api)
 
+
 def relatedness_title(tt_pairs, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_REL_API):
     '''
     Get the semantic relatedness among pairs of entities. Entities are indicated by their
@@ -214,6 +226,7 @@ def relatedness_title(tt_pairs, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT
     :param api: the API endpoint.
     '''
     return _relatedness("tt", tt_pairs, gcube_token, lang, api)
+
 
 def _relatedness(pairs_type, pairs, gcube_token, lang, api):
     if not isinstance(pairs[0], (list, tuple)):
@@ -230,6 +243,7 @@ def _relatedness(pairs_type, pairs, gcube_token, lang, api):
         json_responses.append(_issue_request(api, payload, gcube_token))
     return RelatednessResponse(json_responses) if json_responses and json_responses[0] else None
 
+
 def _issue_request(api, payload, gcube_token):
     if not gcube_token:
         gcube_token = GCUBE_TOKEN
@@ -243,4 +257,4 @@ def _issue_request(api, payload, gcube_token):
     if res.status_code != 200:
         logging.warning("Tagme returned status code %d message:\n%s", res.status_code, res.content)
         return None
-    return simplejson.loads(res.content)
+    return json.loads(res.content)
