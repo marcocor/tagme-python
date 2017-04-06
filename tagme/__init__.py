@@ -1,7 +1,9 @@
-
 '''
 This module provides a wrapper for the TagMe API.
 '''
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import logging
 import requests
 import json
@@ -199,7 +201,7 @@ def mentions(text, gcube_token=None, lang=DEFAULT_LANG, api=DEFAULT_SPOT_API):
     :param api: the API endpoint.
     '''
     payload = [("text", text.encode("utf-8")),
-               ("lang", lang)]
+               ("lang", lang.encode("utf-8"))]
     json_response = _issue_request(api, payload, gcube_token)
     return MentionsResponse(json_response) if json_response else None
 
@@ -232,7 +234,10 @@ def _relatedness(pairs_type, pairs, gcube_token, lang, api):
     if not isinstance(pairs[0], (list, tuple)):
         pairs = [pairs]
 
-    if isinstance(pairs[0][0], (str, unicode)):
+    if hasattr(pairs[0][0], "decode"):  # bytestring in python 2 or 3
+        pairs = [(p[0].decode("utf-8"), p[1].decode("utf-8")) for p in pairs]
+
+    if hasattr(pairs[0][0], "encode"):  # unicode string in python 2 or 3
         pairs = [(normalize_title(p[0]), normalize_title(p[1])) for p in pairs]
 
     json_responses = []
@@ -257,4 +262,5 @@ def _issue_request(api, payload, gcube_token):
     if res.status_code != 200:
         logging.warning("Tagme returned status code %d message:\n%s", res.status_code, res.content)
         return None
-    return json.loads(res.content)
+    res_content = res.content.decode("utf-8") if hasattr(res.content, "decode") else res.content
+    return json.loads(res_content)
