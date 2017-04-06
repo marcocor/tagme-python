@@ -4,13 +4,13 @@ This module provides a wrapper for the TagMe API.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import dateutil.parser
 import json
 import logging
 import requests
 import six
 
-from iso8601utils import parsers
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 __all__ = [
     'annotate', 'mentions', 'relatedness_wid', 'relatedness_title', 'Annotation',
@@ -62,7 +62,7 @@ class AnnotateResponse(object):
         self.annotations = [Annotation(ann_json) for ann_json in json_content["annotations"] if "title" in ann_json]
         self.time = int(json_content["time"])
         self.lang = json_content["lang"]
-        self.timestamp = parsers.datetime(json_content["timestamp"])
+        self.timestamp = dateutil.parser.parse(json_content["timestamp"])
 
     def get_annotations(self, min_rho=None):
         '''
@@ -98,7 +98,7 @@ class MentionsResponse(object):
         self.mentions = [Mention(mention_json) for mention_json in json_content["spots"]]
         self.time = int(json_content["time"])
         self.lang = json_content["lang"]
-        self.timestamp = parsers.datetime(json_content["timestamp"])
+        self.timestamp = dateutil.parser.parse(json_content["timestamp"])
 
     def get_mentions(self, min_lp=None):
         '''
@@ -141,7 +141,7 @@ class RelatednessResponse(object):
                             for json_content in json_contents
                             for rel_json in json_content["result"]]
         self.lang = json_contents[0]["lang"]
-        self.timestamp = parsers.datetime(json_contents[0]["timestamp"])
+        self.timestamp = dateutil.parser.parse(json_contents[0]["timestamp"])
         self.calls = len(json_contents)
 
     def __iter__(self):

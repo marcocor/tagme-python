@@ -41,7 +41,8 @@ setup(
     packages=['tagme'],
 
     install_requires=[
-        'iso8601utils',
+        'future',
+        'python-dateutil',
         'requests',
         'six',
     ],
