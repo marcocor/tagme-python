@@ -96,4 +96,6 @@ If one entity does not exist, the result will be ``None``.
 Changelog
 ---------
 
-See the [Changelog](CHANGELOG.rst)
+See the `Changelog`_.
+
+.. _Changelog: CHANGELOG.rst
