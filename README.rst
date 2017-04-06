@@ -91,7 +91,7 @@ If one entity does not exist, the result will be ``None``.
 
  # You can also build a dictionary
  rels_dict = dict(rels)
- print rels_dict[("Barack_Obama", "Italy")]
+ print rels_dict[("Barack Obama", "Italy")]
  
 Changelog
 ---------
