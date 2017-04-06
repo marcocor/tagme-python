@@ -93,4 +93,7 @@ If one entity does not exist, the result will be ``None``.
  rels_dict = dict(rels)
  print rels_dict[("Barack_Obama", "Italy")]
  
- 
+Changelog
+---------
+
+See the [Changelog](CHANGELOG.rst)
