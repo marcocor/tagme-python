@@ -13,7 +13,7 @@ with codecs.open(path.join(HERE, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='tagme',
-    version='0.1.2',
+    version='0.1.3',
     description='Official TagMe API wrapper for Python',
     long_description=LONG_DESCRIPTION,
     url='https://github.com/marcocor/tagme-python',
@@ -21,7 +21,7 @@ setup(
     author_email='cornolti@di.unipi.it',
     license='Apache',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
@@ -32,6 +32,8 @@ setup(
         'Topic :: Text Processing :: Linguistic',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
     ],
 
     keywords='entity-linking nlp tagme api',
@@ -41,6 +43,7 @@ setup(
     install_requires=[
         'iso8601utils',
         'requests',
+        'six',
     ],
 
     extras_require={
