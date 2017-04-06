@@ -7,6 +7,7 @@ import requests
 import json
 
 from iso8601utils import parsers
+from HTMLParser import HTMLParser
 
 __all__ = [
     'annotate', 'mentions', 'relatedness_wid', 'relatedness_title', 'Annotation',
@@ -21,10 +22,10 @@ DEFAULT_SPOT_API = "https://tagme.d4science.org/tagme/spot"
 DEFAULT_REL_API = "https://tagme.d4science.org/tagme/rel"
 DEFAULT_LANG = "en"
 DEFAULT_LONG_TEXT = 3
-WIKIPEDIA_URI_BASE = "https://{}.wikipedia.org/wiki/{}"
+WIKIPEDIA_URI_BASE = u"https://{}.wikipedia.org/wiki/{}"
 MAX_RELATEDNESS_PAIRS_PER_REQUEST = 100
 GCUBE_TOKEN = None
-
+HTML_PARSER = HTMLParser()
 
 class Annotation(object):
     '''
@@ -39,7 +40,7 @@ class Annotation(object):
         self.mention = ann_json.get("spot")
 
     def __str__(self):
-        return "{} -> {} (score: {})".format(self.mention, self.entity_title, self.score)
+        return u"{} -> {} (score: {})".format(self.mention, self.entity_title, self.score)
 
     def uri(self, lang=DEFAULT_LANG):
         '''
@@ -55,7 +56,7 @@ class AnnotateResponse(object):
     found.
     '''
     def __init__(self, json_content):
-        self.annotations = [Annotation(ann_json) for ann_json in json_content["annotations"]]
+        self.annotations = [Annotation(ann_json) for ann_json in json_content["annotations"] if "title" in ann_json]
         self.time = int(json_content["time"])
         self.lang = json_content["lang"]
         self.timestamp = parsers.datetime(json_content["timestamp"])
@@ -82,7 +83,7 @@ class Mention(object):
         self.mention = mention_json.get("spot")
 
     def __str__(self):
-        return "{} [{},{}] lp={}".format(self.mention, self.begin, self.end, self.linkprob)
+        return u"{} [{},{}] lp={}".format(self.mention, self.begin, self.end, self.linkprob)
 
 
 class MentionsResponse(object):
@@ -113,7 +114,7 @@ class Relatedness(object):
     are.
     '''
     def __init__(self, rel_json):
-        self.title1, self.title2 = rel_json["couple"].split(" ")
+        self.title1, self.title2 = (wiki_title(t) for t in rel_json["couple"].split(" "))
         self.rel = float(rel_json["rel"]) if "rel" in rel_json else None
 
     def as_pair(self):
@@ -124,7 +125,7 @@ class Relatedness(object):
         return ((self.title1, self.title2), self.rel)
 
     def __str__(self):
-        return "{}, {} rel={}".format(self.title1, self.title2, self.rel)
+        return u"{}, {} rel={}".format(self.title1, self.title2, self.rel)
 
 
 class RelatednessResponse(object):
@@ -162,6 +163,14 @@ def normalize_title(title):
     '''
     title = title.strip().replace(" ", "_")
     return title[0].upper() + title[1:]
+
+
+def wiki_title(title):
+    '''
+    Given a normalized title, get the page title. E.g. "Barack_Obama" becomes "Barack Obama"
+    :param title: a wikipedia title.
+    '''
+    return HTML_PARSER.unescape(title.strip(" _").replace("_", " "))
 
 
 def title_to_uri(entity_title, lang=DEFAULT_LANG):
@@ -238,7 +247,7 @@ def _relatedness(pairs_type, pairs, gcube_token, lang, api):
     json_responses = []
     for chunk in range(0, len(pairs), MAX_RELATEDNESS_PAIRS_PER_REQUEST):
         payload = [("lang", lang)]
-        payload += ((pairs_type, "{} {}".format(p[0], p[1]))
+        payload += ((pairs_type, u"{} {}".format(p[0], p[1]))
                     for p in pairs[chunk:chunk + MAX_RELATEDNESS_PAIRS_PER_REQUEST])
         json_responses.append(_issue_request(api, payload, gcube_token))
     return RelatednessResponse(json_responses) if json_responses and json_responses[0] else None

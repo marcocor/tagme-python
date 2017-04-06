@@ -52,4 +52,5 @@ if __name__ == "__main__":
     tagme.GCUBE_TOKEN = sys.argv[1]
     assert tagme.normalize_title(" barack Obama  ") == "Barack_Obama"
     assert tagme.title_to_uri(" barack Obama  ") == "https://en.wikipedia.org/wiki/Barack_Obama"
+    assert tagme.wiki_title("Barack_Obama") == ("Barack Obama")
     main()

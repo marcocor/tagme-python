@@ -41,7 +41,6 @@ setup(
     install_requires=[
         'iso8601utils',
         'requests',
-        'json',
     ],
 
     extras_require={
