@@ -91,3 +91,5 @@ ENV/
 # Eclipse and pydev
 /.project
 /.pydevproject
+.idea
+.vscode

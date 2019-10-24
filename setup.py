@@ -1,6 +1,6 @@
-'''
+"""
 Setup for Tagme API Wrapper.
-'''
+"""
 
 import codecs
 from os import path
