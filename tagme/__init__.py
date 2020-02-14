@@ -63,6 +63,7 @@ class AnnotateResponse(object):
         self.time = int(json_content["time"])
         self.lang = json_content["lang"]
         self.timestamp = dateutil.parser.parse(json_content["timestamp"])
+        self.original_json = json_content
 
     def get_annotations(self, min_rho=None):
         '''
